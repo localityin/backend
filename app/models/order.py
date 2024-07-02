@@ -1,15 +1,15 @@
-from app.models.base import BaseUUIDModel
+from app.models.base import BaseUUIDModel, BaseModel
 from pydantic import Field
 from typing import List
 from uuid import UUID
 
 
-class OrderItem():
+class OrderItem(BaseModel):
     product_id: str
     quantity: int
 
 
-class Location():
+class Location(BaseModel):
     latitude: float
     longitude: float
 
@@ -24,8 +24,8 @@ class Order(BaseUUIDModel):
     store_address: Location = None
 
     class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+        populate_by_name = True
+        json_schema_extra = {
             "example": {
                 "user_id": "e7c9d3b5-7a46-4e64-bc90-29e3ecb8cf92",
                 "store_id": "a8c7b4d5-6b36-4f7a-891c-1e6fd4bc032e",

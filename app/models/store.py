@@ -1,10 +1,10 @@
-from app.models.base import BaseUUIDModel
+from app.models.base import BaseUUIDModel, BaseModel
 from pydantic import Field
 from typing import Optional
 from uuid import UUID
 
 
-class Location():
+class Location(BaseModel):
     latitude: float
     longitude: float
 
@@ -16,8 +16,8 @@ class Store(BaseUUIDModel):
     status: str = "active"
 
     class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+        populate_by_name = True
+        json_schema_extra = {
             "example": {
                 "name": "Local Mart",
                 "address": "123 Main Street",

@@ -15,8 +15,8 @@ class BaseUUIDModel(BaseModel):
 
     class Config:
         # Allow population by field name for easier use with Pydantic
-        allow_population_by_field_name = True
-        orm_mode = True
+        populate_by_name = True
+        from_attributes = True
 
     @field_validator("created_at", "updated_at", mode='before', check_fields=True)
     def default_timezone(cls, v):
