@@ -1,9 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
 from uuid import uuid4, UUID
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
-# Define IST timezone
-IST = timezone(timedelta(hours=5, minutes=30))
+from app.utils import get_local_datetime
 
 
 class BaseUUIDModel(BaseModel):
@@ -26,5 +25,6 @@ class BaseUUIDModel(BaseModel):
         # Override model_dump method to ensure updatedAt is always set to current time
         kwargs['by_alias'] = True
         d = super().model_dump(*args, **kwargs)
-        d['updatedAt'] = datetime.now(IST)
+        d['updatedAt'] = get_local_datetime()
+        d['createdAt'] = get_local_datetime()
         return d

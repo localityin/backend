@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routers import user_router, store_router, order_router, webhook_router
 from app.config import settings
+from app.utils import get_local_datetime
 
 app = FastAPI()
 
@@ -14,6 +15,6 @@ app.include_router(webhook_router.router, prefix="/api/v1")
 def read_root():
     return {
         "message": "Welcome to Locality API",
-        "debug": settings.debug,
-        "version": settings.version
+        "version": settings.version,
+        "time": get_local_datetime()
     }
