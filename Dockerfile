@@ -1,9 +1,10 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1      # Disable output buffering
-ENV PYTHONDONTWRITEBYTECODE=1 # Prevent the creation of .pyc files
+# Set environment variables  
+# Disable output buffering and prevent the creation of .pyc files
+ENV PYTHONUNBUFFERED=1     
+ENV PYTHONDONTWRITEBYTECODE=1 
 
 # Set the working directory in the container
 WORKDIR /app
