@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from app.models.base import BaseUUIDModel, BaseModel
+from typing import List
 
 
 class InventoryItem(BaseModel):
@@ -8,6 +8,6 @@ class InventoryItem(BaseModel):
     quantity: int
 
 
-class Inventory(BaseModel):
+class Inventory(BaseUUIDModel):
     store_id: str
     items: List[InventoryItem]

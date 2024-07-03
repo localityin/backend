@@ -1,5 +1,5 @@
 from app.models.product import Product
-from app.database import product_collection
+from app.database.mongo import product_collection
 from uuid import UUID
 
 

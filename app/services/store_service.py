@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.models.store import Store
-from app.database import store_collection
+from app.database.mongo import store_collection
 
 
 async def create_store(store_data: dict):

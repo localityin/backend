@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.models.user import User
-from app.database import user_collection
+from app.database.mongo import user_collection
 
 
 async def create_user(user_data: dict):

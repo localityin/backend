@@ -19,6 +19,7 @@ class Order(BaseUUIDModel):
     store_id: UUID
     items: List[OrderItem]
     status: str = "pending"
+    rating: float = 5
     delivery_address: Location
     user_address: Location = None
     store_address: Location = None
@@ -33,6 +34,7 @@ class Order(BaseUUIDModel):
                     {"product_id": "1", "quantity": 2},
                     {"product_id": "2", "quantity": 1}
                 ],
+                "rating": 3.4,
                 "delivery_address": {"latitude": 12.9716, "longitude": 77.5946},
                 "user_address": {"latitude": 12.3456, "longitude": 78.9123},
                 "store_address": {"latitude": 12.6789, "longitude": 76.5432}

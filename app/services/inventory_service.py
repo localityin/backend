@@ -1,5 +1,5 @@
 from app.models.inventory import Inventory, InventoryItem
-from app.database import inventory_collection
+from app.database.mongo import inventory_collection
 from uuid import UUID
 
 

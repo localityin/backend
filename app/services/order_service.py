@@ -1,5 +1,5 @@
 from app.models.order import Order
-from app.database import order_collection
+from app.database.mongo import order_collection
 from uuid import UUID
 from typing import List
 

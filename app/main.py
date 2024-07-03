@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.routers import user_router, store_router, order_router, webhook_router
 from app.config import settings
-from app.utils import get_local_datetime
+from app.utils.datetime import get_local_datetime
 
 app = FastAPI()
 

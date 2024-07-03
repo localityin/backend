@@ -2,8 +2,10 @@ from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from app.services import user_service, order_service, store_service
 import json
+from app.services.conversation_service import ConversationService
 
 router = APIRouter()
+conversation_service = ConversationService()
 
 
 class WhatsAppWebhookPayload(BaseModel):
@@ -13,18 +15,16 @@ class WhatsAppWebhookPayload(BaseModel):
 
 @router.post("/webhook/user")
 async def user_webhook(payload: WhatsAppWebhookPayload):
-    # Process user messages from WhatsApp webhook
+    print('user webhook: ', payload.model_dump_json())
     # for entry in payload.entry:
     #     for change in entry.get("changes", []):
-    #         value = change.get("value")
-    #         if value and value.get("messages"):
-    #             for message in value["messages"]:
-    #                 # Extract relevant data from the message
-    #                 user_id = message["from"]
-    #                 message_text = message["text"]["body"]
-    #                 # Process the message (e.g., place order, check status)
-    #                 await user_service.process_message(user_id, message_text)
-    print('User webhook payload: ', json.dumps(payload))
+    #         if change["field"] == "messages":
+    #             message_data = change["value"]["messages"][0]
+    #             mobile_number = message_data["from"]
+    #             message = message_data["text"]["body"]
+    #             response = conversation_service.conversation_engine(
+    #                 mobile_number, message)
+    #             print('User webhook response: ', response)
     return {"message": "User webhook received"}
 
 
