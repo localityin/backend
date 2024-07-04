@@ -10,7 +10,7 @@ conversation_service = ConversationService()
 
 
 @router.get("/webhook/user")
-async def verify_webhook(
+async def verify_webhook_user(
     hub_mode: str = Query(None, alias="hub.mode"),
     hub_challenge: str = Query(None, alias="hub.challenge"),
     hub_verify_token: str = Query(None, alias="hub.verify_token")
@@ -40,6 +40,19 @@ async def user_webhook(payload: WhatsAppWebhookPayload):
     #                 mobile_number, message)
     #             print('User webhook response: ', response)
     return {"message": "User webhook received"}
+
+
+@router.get("/webhook/store")
+async def verify_webhook_store(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token")
+):
+    if hub_mode == "subscribe" and hub_verify_token == settings.secret:
+        return int(hub_challenge)
+    else:
+        raise HTTPException(
+            status_code=403, detail="Verification token mismatch")
 
 
 @router.post("/webhook/store")
