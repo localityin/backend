@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # Application settings
     env: str = Field(..., env="ENV")
     version: str = Field(..., env="VERSION")
+    secret: str = Field(..., env="SECRET")
 
     class Config:
         env_file = ".env"

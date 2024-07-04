@@ -1,11 +1,25 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Query
 from pydantic import BaseModel
 from app.services import user_service, order_service, store_service
 import json
 from app.services.conversation_service import ConversationService
+from app.config import settings
 
 router = APIRouter()
 conversation_service = ConversationService()
+
+
+@router.get("/webhook/user")
+async def verify_webhook(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token")
+):
+    if hub_mode == "subscribe" and hub_verify_token == settings.secret:
+        return int(hub_challenge)
+    else:
+        raise HTTPException(
+            status_code=403, detail="Verification token mismatch")
 
 
 class WhatsAppWebhookPayload(BaseModel):
