@@ -1,4 +1,4 @@
-from app.models.base import BaseUUIDModel, BaseModel
+from app.models.base import BaseNanoIDModel, BaseModel
 from typing import List
 
 
@@ -8,6 +8,6 @@ class InventoryItem(BaseModel):
     quantity: int
 
 
-class Inventory(BaseUUIDModel):
+class Inventory(BaseNanoIDModel):
     store_id: str
     items: List[InventoryItem]

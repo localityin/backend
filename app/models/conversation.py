@@ -1,5 +1,5 @@
-from app.models.base import BaseModel, BaseUUIDModel
-from typing import List, Optional
+from app.models.base import BaseModel, BaseNanoIDModel
+from typing import List
 
 
 class Message(BaseModel):
@@ -8,6 +8,7 @@ class Message(BaseModel):
     quantity: int
 
 
-class Conversation(BaseUUIDModel):
+class Conversation(BaseNanoIDModel):
+    _id: str
     mobile_number: str
     items: List[Message]

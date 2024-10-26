@@ -15,11 +15,9 @@ class SKU(BaseNanoIDModel):
     stockCount: int
 
 # Product response schema
-class Product(BaseNanoIDModel):
+class ProductMaster(BaseNanoIDModel):
     _id: str
-    storeId: str # points to store holding this product
     name: str
-    productId: str # points to product in product master
     description: Optional[str] = None
     category: str
     subCategory: Optional[str] = None
@@ -32,7 +30,7 @@ class Product(BaseNanoIDModel):
     class Config:
         orm_mode = True
 
-class ProductOut(Product):
+class ProductMasterOut(ProductMaster):
     pass
 
 # Product creation request
