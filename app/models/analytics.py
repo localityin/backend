@@ -1,49 +1,57 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from typing import List
 from datetime import datetime
-from models.base import BaseNanoIDModel
+from decimal import Decimal
 
-# Top-selling items schema
 class TopSellingItem(BaseModel):
-    productId: str
-    skuId: str
+    product_id: str
+    sku_id: str
     quantity: int
-    revenue: float
+    revenue: Decimal
 
-# Missed opportunities schema
+    @field_validator("revenue")
+    def validate_revenue(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Revenue must have at most two decimal places")
+        return value
 class MissedOpportunity(BaseModel):
     reason: str
     count: int
-    estimatedLoss: float
+    estimated_loss: Decimal
 
-# Peak hours schema
-class PeakHour(BaseModel):
-    hour: int
-    orderCount: int
+    @field_validator("estimated_loss")
+    def validate_estimated_loss(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Estimated loss must have at most two decimal places")
+        return value
 
-# Analytics response schema
-class Analytics(BaseNanoIDModel):
-    _id: str
-    storeId: str
-    period: str  # 'weekly', 'monthly'
-    startDate: datetime
-    endDate: datetime
-    totalOrders: int
-    completedOrders: int
-    rejectedOrders: int
-    totalRevenue: float
-    platformFees: float
-    topSellingItems: List[TopSellingItem] = []
-    missedOpportunities: List[MissedOpportunity] = []
-    peakHours: List[PeakHour] = []
-    createdAt: datetime
+class AnalyticsMetrics(BaseModel):
+    total_orders: int
+    completed_orders: int
+    rejected_orders: int
+    total_revenue: Decimal
+    platform_fees: Decimal
+    top_selling_items: List[TopSellingItem]
+    missed_opportunities: List[MissedOpportunity]
+    peak_hours: List[dict]  # Example: [{"hour": 12, "order_count": 15}]
 
-    class Config:
-        orm_mode = True
+    @field_validator("total_revenue")
+    def validate_revenue(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Revenue must have at most two decimal places")
+        return value
+    
+    @field_validator("platform_fees")
+    def validate_platform_fees(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Platform fees must have at most two decimal places")
+        return value
 
-# Analytics creation request (for scheduled background tasks)
-class AnalyticsCreate(BaseModel):
-    storeId: str
-    period: str
-    startDate: datetime
-    endDate: datetime
+class AnalyticsReport(BaseModel):
+    id: str = Field(..., alias="_id")
+    store_id: str
+    period: str  # 'weekly' or 'monthly'
+    start_date: datetime
+    end_date: datetime
+    metrics: AnalyticsMetrics
+    created_at: datetime

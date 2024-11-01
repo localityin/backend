@@ -1,13 +1,9 @@
 from fastapi import APIRouter, Request, HTTPException, Query
 from pydantic import BaseModel
-from app.services import user_service, order_service, store_service
 import json
-from app.services.conversation_service import ConversationService
-from app.config import settings
+from app.core.config import settings
 
 router = APIRouter()
-conversation_service = ConversationService()
-
 
 @router.get("/webhook/user")
 async def verify_webhook_user(
@@ -15,7 +11,7 @@ async def verify_webhook_user(
     hub_challenge: str = Query(None, alias="hub.challenge"),
     hub_verify_token: str = Query(None, alias="hub.verify_token")
 ):
-    if hub_mode == "subscribe" and hub_verify_token == settings.secret:
+    if hub_mode == "subscribe" and hub_verify_token == settings.whatsapp_secret:
         return int(hub_challenge)
     else:
         raise HTTPException(
@@ -48,7 +44,7 @@ async def verify_webhook_store(
     hub_challenge: str = Query(None, alias="hub.challenge"),
     hub_verify_token: str = Query(None, alias="hub.verify_token")
 ):
-    if hub_mode == "subscribe" and hub_verify_token == settings.secret:
+    if hub_mode == "subscribe" and hub_verify_token == settings.whatsapp_secret:
         return int(hub_challenge)
     else:
         raise HTTPException(
@@ -57,6 +53,7 @@ async def verify_webhook_store(
 
 @router.post("/webhook/store")
 async def store_webhook(payload: WhatsAppWebhookPayload):
+    print('Store webhook payload: ', json.dumps(payload))
     # Process store messages from WhatsApp webhook
     # for entry in payload.entry:
     #     for change in entry.get("changes", []):
@@ -68,5 +65,4 @@ async def store_webhook(payload: WhatsAppWebhookPayload):
     #                 message_text = message["text"]["body"]
     #                 # Process the message (e.g., confirm order, update status)
     #                 await store_service.process_message(store_id, message_text)
-    print('Store webhook payload: ', json.dumps(payload))
     return {"message": "Store webhook received"}

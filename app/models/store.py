@@ -1,76 +1,43 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 from datetime import datetime
-from models.base import BaseNanoIDModel
 
-# Store address schema
-class StoreAddress(BaseNanoIDModel):
-    _id: str
+class StoreAddress(BaseModel):
+    id: str = Field(..., alias="_id")
     address: str
     latitude: float
     longitude: float
-    isVerified: bool
-    verificationStatus: str  # 'pending', 'verified', 'rejected'
-    verifiedAt: Optional[datetime] = None
+    is_verified: bool = False
+    verification_status: str = "pending"
+    verified_at: Optional[datetime]
 
-# Store subscription schema
 class Subscription(BaseModel):
-    planId: str
-    status: str  # 'active', 'expired', 'trial'
-    startDate: datetime
-    endDate: datetime
-    trialEndsAt: datetime
+    plan_id: str
+    status: str
+    start_date: datetime
+    end_date: Optional[datetime]
+    trial_ends_at: datetime
 
-# Store operating hours schema
-class OperatingHours(BaseModel):
-    day: int
-    open: str
-    close: str
-
-# Store response schema
-class Store(BaseNanoIDModel):
-    _id: str
-    name: str
-    email: EmailStr
-    phone: str
-    description: Optional[str] = None
-    rating: float
-    totalRatings: int
-    addresses: List[StoreAddress] = []
-    subscription: Subscription
-    operatingHours: List[OperatingHours] = []
-    createdAt: datetime
-    updatedAt: datetime
-
-    class Config:
-        orm_mode = True
-
-class StoreOut(BaseModel):
-    _id: str
-    name: str
-    email: EmailStr
-    phone: str
-    description: Optional[str] = None
-    rating: float
-    totalRatings: int
-    subscription: Subscription
-    createdAt: datetime
-    updatedAt: datetime
-
-    class Config:
-        orm_mode = True
-
-# Store creation request
 class StoreCreate(BaseModel):
-    name: str
     email: EmailStr
     password: str
+    name: str
     phone: str
-    description: Optional[str] = None
-    operatingHours: List[OperatingHours]
-
-# Store update request
-class StoreUpdate(BaseModel):
-    name: Optional[str]
     description: Optional[str]
-    phone: Optional[str]
+
+class StoreResponse(BaseModel):
+    id: str = Field(..., alias="_id")
+    email: EmailStr
+    name: str
+    phone: str
+    description: Optional[str]
+    addresses: List[StoreAddress]
+    subscription: Optional[Subscription]
+    created_at: datetime
+    updated_at: datetime
+
+class StoreUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[EmailStr] = None

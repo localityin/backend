@@ -1,47 +1,52 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from typing import List
 from datetime import datetime
-from models.base import BaseNanoIDModel
+from decimal import Decimal
 
-# Order item schema
 class OrderItem(BaseModel):
-    skuId: str
-    productId: str
+    sku_id: str
+    product_id: str
     quantity: int
-    price: float
+    price: Decimal
 
-# Delivery address for the order
-class DeliveryAddress(BaseModel):
-    address: str
-    latitude: float
-    longitude: float
+    @field_validator("price")
+    def validate_price(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Price must have at most two decimal places")
+        return value
 
-# Order response schema
-class Order(BaseNanoIDModel):
-    _id: str
-    userId: str
-    storeId: str
-    items: List[OrderItem] = []
-    status: str  # 'pending', 'accepted', 'rejected', 'dispatched', 'delivered', 'cancelled'
-    subtotal: float
-    platformFee: float
-    deliveryFee: float
-    total: float
-    paymentStatus: str  # 'pending', 'success', 'failed'
-    paymentId: Optional[str] = None
-    deliveryAddress: DeliveryAddress
-    createdAt: datetime
-    updatedAt: datetime
 
-    class Config:
-        orm_mode = True
-
-# Order creation request
 class OrderCreate(BaseModel):
-    userId: str
-    storeId: str
+    store_id: str
     items: List[OrderItem]
-    deliveryAddress: DeliveryAddress
+    subtotal: Decimal
+    platform_fee: Decimal
+    delivery_fee: Decimal
+    total: Decimal
+    delivery_address: dict
 
-class OrderOut(Order):
-    pass
+    @field_validator("subtotal", "platform_fee", "delivery_fee", "total")
+    def validate_price(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Price must have at most two decimal places")
+        return value
+
+class OrderResponse(BaseModel):
+    id: str = Field(..., alias="_id")
+    user_id: str
+    store_id: str
+    items: List[OrderItem]
+    status: str
+    subtotal: Decimal
+    platform_fee: Decimal
+    delivery_fee: Decimal
+    total: Decimal
+    payment_status: str
+    created_at: datetime
+    updated_at: datetime
+
+    @field_validator("subtotal", "platform_fee", "delivery_fee", "total")
+    def validate_price(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Price must have at most two decimal places")
+        return value

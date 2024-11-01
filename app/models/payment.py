@@ -1,31 +1,34 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
-from models.base import BaseNanoIDModel
+from decimal import Decimal
 
-# Payment response schema
-class Payment(BaseNanoIDModel):
-    _id: str
-    orderId: Optional[str] = None  # For order payments
-    storeId: Optional[str] = None  # For subscription payments
-    type: str  # 'order', 'subscription'
-    amount: float
-    currency: str
-    razorpayPaymentId: str
-    razorpayOrderId: str
-    status: str  # 'created', 'authorized', 'captured', 'failed'
-    createdAt: datetime
-    updatedAt: datetime
-
-    class Config:
-        orm_mode = True
-
-# Payment creation request
 class PaymentCreate(BaseModel):
-    orderId: Optional[str] = None
-    storeId: Optional[str] = None
-    type: str
-    amount: float
+    order_id: str
+    amount: Decimal
+    currency: str = "INR"
+    payment_type: str  # 'order' or 'subscription'
+
+    @field_validator("amount")
+    def validate_amount(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Amount must have at most two decimal places")
+        return value
+
+class PaymentResponse(BaseModel):
+    id: str = Field(..., alias="_id")
+    order_id: str
+    store_id: Optional[str] = None  # For subscription payments
+    amount: Decimal
     currency: str
-    razorpayPaymentId: str
-    razorpayOrderId: str
+    razorpay_payment_id: Optional[str]
+    razorpay_order_id: Optional[str]
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    @field_validator("amount")
+    def validate_amount(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Amount must have at most two decimal places")
+        return value

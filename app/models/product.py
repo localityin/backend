@@ -1,58 +1,41 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import datetime
-from models.base import BaseNanoIDModel
+from decimal import Decimal
 
-# SKU schema for product
-class SKU(BaseNanoIDModel):
-    _id: str
+class SKU(BaseModel):
+    id: str = Field(..., alias="_id")
     name: str
-    price: float
-    mrp: float
+    price: Decimal
+    mrp: Decimal
     unit: str
     quantity: float
-    inStock: bool
-    stockCount: int
+    in_stock: bool
+    stock_count: int
 
-# Product response schema
-class Product(BaseNanoIDModel):
-    _id: str
-    storeId: str # points to store holding this product
-    name: str
-    productId: str # points to product in product master
-    description: Optional[str] = None
-    category: str
-    subCategory: Optional[str] = None
-    brand: Optional[str] = None
-    skus: List[SKU] = []
-    isActive: bool
-    createdAt: datetime
-    updatedAt: datetime
+    @field_validator("price")
+    def validate_price(cls, value):
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Price must have at most two decimal places")
+        return value
 
-    class Config:
-        orm_mode = True
-
-class ProductOut(Product):
-    pass
-
-# Product creation request
 class ProductCreate(BaseModel):
-    storeId: str
     name: str
-    description: Optional[str] = None
+    description: Optional[str]
     category: str
-    subCategory: Optional[str] = None
-    brand: Optional[str] = None
+    sub_category: Optional[str]
+    brand: Optional[str]
     skus: List[SKU]
 
-# Product update request
-class ProductUpdate(BaseModel):
-    name: Optional[str]
+class ProductResponse(BaseModel):
+    id: str = Field(..., alias="_id")
+    store_id: str
+    name: str
     description: Optional[str]
-    skus: Optional[List[SKU]]
-
-class SkuCreate(SKU):
-    pass
-
-class SkuUpdate(SKU):
-    pass
+    category: str
+    sub_category: Optional[str]
+    brand: Optional[str]
+    skus: List[SKU]
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
