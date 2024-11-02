@@ -30,6 +30,7 @@ class StoreResponse(BaseModel):
     email: EmailStr
     name: str
     phone: str
+    gstin: Optional[str]
     description: Optional[str]
     addresses: List[StoreAddress]
     subscription: Optional[Subscription]

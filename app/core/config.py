@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     razorpay_api_key: str
     razorpay_api_secret: str
     whatsapp_secret: str
+    base_url: str
+    inference_url: str
     
     class Config:
         env_file = ".env"
