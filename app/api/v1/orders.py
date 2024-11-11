@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from app.models.order import OrderCreate, OrderResponse, OrderItem
+from app.models.order import OrderCreate, OrderResponse, OrderItem, RateOrder
 from app.utils.security import get_current_user, get_current_store
 from app.core.database import db
 from nanoid import generate
 from datetime import datetime
 from typing import List
+from app.utils.datetime import get_ist_time
 
 router = APIRouter()
 
@@ -12,13 +13,14 @@ router = APIRouter()
 async def create_order(order: OrderCreate, current_user: dict = Depends(get_current_user)):
     order_id = f"ord_{generate(size=10)}"
     order_data = order.dict()
+    date = get_ist_time()
     order_data.update({
         "_id": order_id,
         "user_id": current_user["_id"],
         "status": "pending",
         "payment_status": "pending",
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "created_at": date,
+        "updated_at": date
     })
     
     await db["orders"].insert_one(order_data)
@@ -66,10 +68,30 @@ async def update_order_status(order_id: str, status: str, current_store: dict = 
     
     result = await db["orders"].update_one(
         {"_id": order_id, "store_id": current_store["_id"]},
-        {"$set": {"status": status, "updated_at": datetime.utcnow()}}
+        {"$set": {"status": status, "updated_at": get_ist_time()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found or unauthorized")
     
     updated_order = await db["orders"].find_one({"_id": order_id, "store_id": current_store["_id"]})
+
     return OrderResponse(**updated_order)
+
+@router.put("/{order_id}/rate", response_model=OrderResponse)
+async def rate_order(order_id: str, payload: RateOrder, current_user: dict = Depends(get_current_user)):
+    order = await db["orders"].find_one({"_id": order_id, "user_id": current_user["_id"]})
+
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    
+    if order["status"] != "delivered":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Order must be delivered to rate")
+    
+    await db["orders"].update_one(
+        {"_id": order_id, "user_id": current_user["_id"]},
+        {"$set": {"rating": payload.rating, "review": payload.review, "updated_at": get_ist_time()}}
+    )
+
+    await db["orders"].find_one({"_id": order_id, "user_id": current_user["_id"]})
+    
+    return {}

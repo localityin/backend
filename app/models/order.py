@@ -50,3 +50,7 @@ class OrderResponse(BaseModel):
         if value.as_tuple().exponent < -2:
             raise ValueError("Price must have at most two decimal places")
         return value
+
+class RateOrder(BaseModel):
+    rating: int
+    review: str
