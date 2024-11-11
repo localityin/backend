@@ -1,29 +1,44 @@
-from app.models.base import BaseUUIDModel, BaseModel
-from pydantic import Field
-from typing import Optional
-from uuid import UUID
+from pydantic import BaseModel, EmailStr, Field
+from typing import List, Optional
+from datetime import datetime
 
-
-class Location(BaseModel):
+class StoreAddress(BaseModel):
+    id: str = Field(..., alias="_id")
+    address: str
     latitude: float
     longitude: float
+    is_verified: bool = False
+    verification_status: str = "pending"
+    verified_at: Optional[datetime]
 
+class Subscription(BaseModel):
+    plan_id: str
+    status: str
+    start_date: datetime
+    end_date: Optional[datetime]
+    trial_ends_at: datetime
 
-class Store(BaseUUIDModel):
+class StoreCreate(BaseModel):
+    email: EmailStr
+    password: str
     name: str
-    address: Optional[str]
-    location: Location
-    rating: float = 5
-    status: str = "active"
+    phone: str
+    description: Optional[str]
 
-    class Config:
-        populate_by_name = True
-        json_schema_extra = {
-            "example": {
-                "name": "Local Mart",
-                "address": "123 Main Street",
-                "status": "active",
-                "rating": 4.2,
-                "location": {"latitude": 12.3456, "longitude": 78.9123}
-            }
-        }
+class StoreResponse(BaseModel):
+    id: str = Field(..., alias="_id")
+    email: EmailStr
+    name: str
+    phone: str
+    gstin: Optional[str]
+    description: Optional[str]
+    addresses: List[StoreAddress]
+    subscription: Optional[Subscription]
+    created_at: datetime
+    updated_at: datetime
+
+class StoreUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[EmailStr] = None
