@@ -86,3 +86,5 @@ coverage/
 .pytest_cache/
 cover/
 coverage.*
+
+.python-version

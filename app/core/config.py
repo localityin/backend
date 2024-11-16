@@ -1,7 +1,9 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    port: int = 8000
     mongo_uri: str
+    mongo_db: str
     redis_uri: str
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
@@ -13,5 +15,6 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
+        ignore_extra = True
 
 settings = Settings()

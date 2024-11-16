@@ -4,7 +4,7 @@ import redis.asyncio as aioredis
 
 # MongoDB client setup
 mongo_client = AsyncIOMotorClient(settings.mongo_uri)
-db = mongo_client.get_database()
+db = mongo_client.get_database(name=settings.mongo_db)
 
 # Redis client setup
 redis_client = aioredis.from_url(settings.redis_uri)
