@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.v1 import users, stores, products, orders, payments, search, whatsapp, inventory
 from app.core.database import mongo_client, redis_client, create_indexes
+from app.utils.datetime import get_ist_time
 
 app = FastAPI()
 
@@ -26,3 +27,7 @@ async def shutdown_db_client():
     print("Disconnecting MongoDB and Redis...")
     mongo_client.close()
     await redis_client.close()
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "time": get_ist_time()}
