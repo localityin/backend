@@ -31,7 +31,7 @@ class InferenceResponse(BaseModel):
     template_name: str
 
 # Define the function to extract message data from payload
-def extract_message_data(payload: WhatsAppWebhookPayload, is_store: bool) -> Optional[Dict[str, Any]]:
+def extract_message_data(payload: WhatsAppWebhookPayload) -> Optional[Dict[str, Any]]:
     """
     Extracts phone number and message from the webhook payload.
     """
@@ -48,8 +48,7 @@ def extract_message_data(payload: WhatsAppWebhookPayload, is_store: bool) -> Opt
                             if phone_number and message_body:
                                 return {
                                     "phone": int(phone_number),
-                                    "message": message_body,
-                                    "isStore": is_store
+                                    "message": message_body
                                 }
         return None
     except Exception as e:
@@ -387,7 +386,7 @@ async def process_message(phone: int, message: str, is_store: bool):
         logger.error(f"Unexpected error during message processing: {e}")
 
 # Define the GET webhook verification for user
-@router.get("/webhook/user")
+@router.get("/webhook")
 async def verify_webhook_user(
     hub_mode: str = Query(None, alias="hub.mode"),
     hub_challenge: str = Query(None, alias="hub.challenge"),
@@ -402,12 +401,13 @@ async def verify_webhook_user(
         raise HTTPException(status_code=403, detail="Verification token mismatch")
 
 # Define the POST webhook handler for user
-@router.post("/webhook/user")
+@router.post("/webhook")
 async def user_webhook(payload: WhatsAppWebhookPayload, background_tasks: BackgroundTasks):
     """
     Handles incoming WhatsApp webhook messages from users.
     """
-    logger.info("Received user webhook payload.")
+    logger.info("payload: ", payload)
+    logger.info("Received webhook payload.")
     # Extract message data
     message_data = extract_message_data(payload, is_store=False)
     if not message_data:
@@ -416,50 +416,10 @@ async def user_webhook(payload: WhatsAppWebhookPayload, background_tasks: Backgr
 
     phone = message_data["phone"]
     message = message_data["message"]
-    is_store = message_data["isStore"]
 
-    logger.info(f"Processing user message from phone: {phone}, message: {message}")
-
-    # Add the message processing task to background tasks
-    background_tasks.add_task(process_message, phone, message, is_store)
-
-    return {"message": "User webhook received and is being processed."}
-
-# Define the GET webhook verification for store
-@router.get("/webhook/store")
-async def verify_webhook_store(
-    hub_mode: str = Query(None, alias="hub.mode"),
-    hub_challenge: str = Query(None, alias="hub.challenge"),
-    hub_verify_token: str = Query(None, alias="hub.verify_token")
-):
-    """
-    Verifies the WhatsApp webhook for store endpoints.
-    """
-    if hub_mode == "subscribe" and hub_verify_token == settings.whatsapp_secret:
-        return int(hub_challenge)
-    else:
-        raise HTTPException(status_code=403, detail="Verification token mismatch")
-
-# Define the POST webhook handler for store
-@router.post("/webhook/store")
-async def store_webhook(payload: WhatsAppWebhookPayload, background_tasks: BackgroundTasks):
-    """
-    Handles incoming WhatsApp webhook messages from stores.
-    """
-    logger.info("Received store webhook payload.")
-    # Extract message data
-    message_data = extract_message_data(payload, is_store=True)
-    if not message_data:
-        logger.warning("No valid message data found in store webhook payload.")
-        return {"message": "No valid message data found."}
-
-    phone = message_data["phone"]
-    message = message_data["message"]
-    is_store = message_data["isStore"]
-
-    logger.info(f"Processing store message from phone: {phone}, message: {message}")
+    logger.info(f"Processing message from phone: {phone}, message: {message}")
 
     # Add the message processing task to background tasks
-    background_tasks.add_task(process_message, phone, message, is_store)
+    # background_tasks.add_task(process_message, phone, message, is_store)
 
-    return {"message": "Store webhook received and is being processed."}
+    return {"message": "Whatsapp webhook received and is being processed."}
