@@ -14,11 +14,16 @@ class Settings(BaseSettings):
     razorpay_api_secret: str
 
     whatsapp_secret: str
+    whatsapp_token: str
     whatsapp_store_number: str
+    whatsapp_store_number_id: str
     whatsapp_user_number: str
+    whatsapp_user_number_id: str
 
     base_url: str
     inference_url: str
+
+    openai_api_key: str
     
     class Config:
         env_file = ".env"
